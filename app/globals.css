@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Design System - Calm & Muted */
+  --primary: #5B8DBE;      /* Soft blue */
+  --secondary: #7BA591;    /* Soft green */
+  --background: #F5F7FA;   /* Very light gray */
+  --surface: #FFFFFF;      /* White */
+  --text-primary: #2C3E50; /* Dark gray */
+  --text-secondary: #7F8C8D; /* Medium gray */
+  --success: #6FCF97;      /* Soft green */
+  --warning: #F2C94C;      /* Soft yellow */
+  --error: #EB5757;        /* Soft red (rarely used) */
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground: var(--text-primary);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-surface: var(--surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Disable dark mode - always light for calm experience */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #F5F7FA;
+    --text-primary: #2C3E50;
   }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* iPad optimization - prevent zoom on input focus */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
+/* Disable text selection on buttons (iPad) */
+button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Button styles */
+.button-primary {
+  min-height: 60px;
+  min-width: 200px;
+  font-size: 20px;
+  border-radius: 16px;
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(91, 141, 190, 0.3);
+  transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+  box-shadow: 0 6px 16px rgba(91, 141, 190, 0.4);
+}
+
+.button-primary:active {
+  transform: scale(0.98);
+}
+
+.button-secondary {
+  min-height: 48px;
+  font-size: 18px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+/* Text input styles */
+.text-input {
+  min-height: 120px;
+  padding: 20px;
+  font-size: 20px;
+  border-radius: 12px;
+  border: 2px solid var(--text-secondary);
+  background: var(--surface);
+  resize: vertical;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(91, 141, 190, 0.1);
+}
+
+/* Microphone button */
+.mic-button {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--success);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(111, 207, 151, 0.4);
+  transition: all 0.3s ease;
+}
+
+.mic-button.listening {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Safe area padding for PWA */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
