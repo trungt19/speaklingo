@@ -31,10 +31,10 @@ export default function GamesHubPage() {
       </motion.div>
 
       {/* Game cards */}
-      <div className="max-w-lg mx-auto space-y-4">
+      <div className="max-w-lg mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <GameCard
@@ -47,9 +47,9 @@ export default function GamesHubPage() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
         >
           <GameCard
             title={GAME_INFO.matching.name}
@@ -61,9 +61,9 @@ export default function GamesHubPage() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
           <GameCard
             title={GAME_INFO.memory.name}
@@ -71,6 +71,62 @@ export default function GamesHubPage() {
             emoji={GAME_INFO.memory.emoji}
             href="/games/memory"
             color="from-purple-400 to-purple-600"
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <GameCard
+            title={GAME_INFO.karaoke.name}
+            description={GAME_INFO.karaoke.description}
+            emoji={GAME_INFO.karaoke.emoji}
+            href="/games/karaoke"
+            color="from-pink-400 to-pink-600"
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <GameCard
+            title={GAME_INFO.echo.name}
+            description={GAME_INFO.echo.description}
+            emoji={GAME_INFO.echo.emoji}
+            href="/games/echo"
+            color="from-cyan-400 to-cyan-600"
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+        >
+          <GameCard
+            title={GAME_INFO.wordbuilder.name}
+            description={GAME_INFO.wordbuilder.description}
+            emoji={GAME_INFO.wordbuilder.emoji}
+            href="/games/wordbuilder"
+            color="from-amber-400 to-amber-600"
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <GameCard
+            title={GAME_INFO.beatmaker.name}
+            description={GAME_INFO.beatmaker.description}
+            emoji={GAME_INFO.beatmaker.emoji}
+            href="/games/beatmaker"
+            color="from-orange-400 to-red-500"
           />
         </motion.div>
       </div>

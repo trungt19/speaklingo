@@ -231,7 +231,7 @@ export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
 
 // ============ Game Types ============
 
-export type GameType = 'matching' | 'quiz' | 'memory';
+export type GameType = 'matching' | 'quiz' | 'memory' | 'karaoke' | 'echo' | 'wordbuilder' | 'beatmaker';
 
 export type GameTopic =
   | 'emotions'
@@ -284,4 +284,41 @@ export interface GameAnswer {
   isCorrect: boolean;
   responseTimeMs: number;
   pointsEarned: number;
+}
+
+// Rap Karaoke types
+export interface KaraokeWord {
+  id: string;
+  text: string;
+  beatIndex: number; // When to tap (0-based beat number)
+}
+
+export interface KaraokeLine {
+  id: string;
+  words: KaraokeWord[];
+  bpm: number; // Beats per minute
+}
+
+// Echo Challenge types
+export interface EchoPhrase {
+  id: string;
+  text: string;
+  emoji: string;
+  audioHint?: string; // Description for TTS
+}
+
+// Word Builder types
+export interface WordBuilderWord {
+  id: string;
+  word: string;
+  emoji: string;
+  hint: string;
+}
+
+// Beat Maker types
+export interface BeatPattern {
+  id: string;
+  name: string;
+  pattern: boolean[]; // true = beat, false = rest
+  bpm: number;
 }
