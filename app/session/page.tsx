@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
@@ -12,14 +12,36 @@ import { LoadingIndicator } from '@/components/session/LoadingIndicator';
 import { CompletionScreen } from '@/components/session/CompletionScreen';
 import { useSession } from '@/hooks/useSession';
 import { useSettings } from '@/hooks/useSettings';
+import { useGamification } from '@/hooks/useGamification';
+import { getRandomMessage } from '@/lib/gamification';
+import { BadgeDefinition } from '@/types';
 
 export default function SessionPage() {
   const router = useRouter();
   const { settings, isLoading: settingsLoading } = useSettings();
   const [mounted, setMounted] = useState(false);
 
+  // Gamification
+  const gamification = useGamification();
+  const {
+    state: gamificationState,
+    levelInfo,
+    levelProgress,
+    processAttempt,
+    processSessionComplete,
+  } = gamification;
+
+  // Track points and badges for current session
+  const [sessionPoints, setSessionPoints] = useState(0);
+  const [lastAttemptPoints, setLastAttemptPoints] = useState(0);
+  const [newBadgesThisSession, setNewBadgesThisSession] = useState<BadgeDefinition[]>([]);
+  const [mascotMessage, setMascotMessage] = useState<string>('');
+  const badgesBeforeSession = useRef<string[]>([]);
+
   useEffect(() => {
     setMounted(true);
+    // Track badges at session start to detect new ones
+    badgesBeforeSession.current = gamificationState.earnedBadges.map((b) => b.badgeId);
   }, []);
 
   // Initialize session hook with settings
@@ -38,21 +60,53 @@ export default function SessionPage() {
     transcript,
     feedback,
     attempts,
-    isProcessing,
     isLastPrompt,
     setTypedText,
     handleTypingComplete,
-    handleSpeechComplete,
+    handleSpeechComplete: originalHandleSpeechComplete,
     handleNextPrompt,
     handleSkip,
     handleExit,
-    completeSession,
+    completeSession: originalCompleteSession,
   } = session;
 
-  // Handle completion
+  // Wrap speech complete to process gamification
+  const handleSpeechComplete = async (spokenTranscript: string) => {
+    await originalHandleSpeechComplete(spokenTranscript);
+  };
+
+  // Process gamification when we get feedback (attempt is complete)
+  useEffect(() => {
+    const processLastAttempt = async () => {
+      if (phase === 'feedback' && attempts.length > 0) {
+        const lastAttempt = attempts[attempts.length - 1];
+        if (lastAttempt && !lastAttempt.skipped) {
+          const points = await processAttempt(lastAttempt);
+          setLastAttemptPoints(points);
+          setSessionPoints((prev) => prev + points);
+          setMascotMessage(getRandomMessage('success'));
+
+          // Check for new badges
+          const currentBadges = gamificationState.earnedBadges.map((b) => b.badgeId);
+          const newBadges = gamification.earnedBadges.filter(
+            (b) => !badgesBeforeSession.current.includes(b.id)
+          );
+          if (newBadges.length > newBadgesThisSession.length) {
+            setNewBadgesThisSession(newBadges);
+          }
+        }
+      }
+    };
+
+    processLastAttempt();
+  }, [phase, attempts.length]);
+
+  // Handle completion with gamification
   const handleDone = async () => {
     if (phase === 'complete') {
-      await completeSession();
+      const bonus = await processSessionComplete(attempts);
+      setSessionPoints((prev) => prev + bonus);
+      await originalCompleteSession();
     }
     router.push('/');
   };
@@ -75,6 +129,11 @@ export default function SessionPage() {
   }
 
   const completedCount = attempts.filter((a) => !a.skipped).length;
+  const isPerfectSession = completedCount === attempts.length && attempts.length > 0;
+
+  // Get clarity from last attempt
+  const lastAttempt = attempts[attempts.length - 1];
+  const lastClarity = lastAttempt?.clarity || 'partial';
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-6 md:p-8 relative">
@@ -172,6 +231,9 @@ export default function SessionPage() {
                 transcript={transcript}
                 onNext={handleNextPrompt}
                 isLastPrompt={isLastPrompt}
+                pointsEarned={lastAttemptPoints}
+                clarity={lastClarity}
+                mascotMessage={mascotMessage}
               />
             </motion.div>
           )}
@@ -190,6 +252,13 @@ export default function SessionPage() {
                 attemptsCount={attempts.length}
                 completedCount={completedCount}
                 onDone={handleDone}
+                sessionPoints={sessionPoints}
+                totalPoints={gamificationState.totalPoints}
+                levelInfo={levelInfo}
+                levelProgress={levelProgress}
+                newBadges={newBadgesThisSession}
+                allBadges={gamificationState.earnedBadges}
+                isPerfectSession={isPerfectSession}
               />
             </motion.div>
           )}

@@ -132,7 +132,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   promptsPerSession: 3,
   requireTyping: true,
   allowSkipping: true,
-  soundEnabled: false,
+  soundEnabled: true, // Enable sounds by default for gamification
   animationsEnabled: true,
   textSize: 'normal',
   promptDifficulty: 1,
@@ -140,4 +140,86 @@ export const DEFAULT_SETTINGS: AppSettings = {
   parentPIN: '1234', // Should be hashed in production
   saveAudio: false,
   dailyGoal: 1,
+};
+
+// ============ Gamification Types ============
+
+// Level progression info
+export interface LevelInfo {
+  level: number;
+  name: string;
+  minPoints: number;
+  maxPoints: number;
+  icon: string;
+}
+
+// Badge/Achievement definition
+export interface BadgeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  category: 'streak' | 'clarity' | 'speed' | 'milestone';
+  icon: string;
+  threshold: number;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+}
+
+// Earned badge instance
+export interface EarnedBadge {
+  badgeId: string;
+  earnedAt: Date;
+  sessionId?: string;
+}
+
+// Player gamification state
+export interface GamificationState {
+  totalPoints: number;
+  currentLevel: number;
+  earnedBadges: EarnedBadge[];
+  streakDays: number;
+  lastActiveDate: string; // YYYY-MM-DD
+  totalClearAnswers: number;
+  totalFastAnswers: number;
+  totalSessions: number;
+}
+
+// Gamification record for IndexedDB
+export interface GamificationRecord {
+  id: 'current';
+  state: GamificationState;
+  lastUpdated: Date;
+}
+
+// Mascot moods
+export type MascotMood = 'idle' | 'happy' | 'excited' | 'encouraging' | 'celebrating' | 'thinking';
+
+// Celebration event
+export interface CelebrationEvent {
+  type: 'points' | 'level_up' | 'badge' | 'streak' | 'session_complete';
+  intensity: 'small' | 'medium' | 'large';
+  points?: number;
+  badge?: BadgeDefinition;
+  newLevel?: LevelInfo;
+  message?: string;
+}
+
+// Sound effect types
+export type SoundEffect =
+  | 'button_click'
+  | 'success_chime'
+  | 'points_earned'
+  | 'level_up'
+  | 'badge_unlock'
+  | 'confetti';
+
+// Default gamification state
+export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
+  totalPoints: 0,
+  currentLevel: 1,
+  earnedBadges: [],
+  streakDays: 0,
+  lastActiveDate: '',
+  totalClearAnswers: 0,
+  totalFastAnswers: 0,
+  totalSessions: 0,
 };

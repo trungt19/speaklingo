@@ -7,6 +7,9 @@ import {
   DEFAULT_SETTINGS,
   SettingsRecord,
   ProgressRecord,
+  GamificationState,
+  GamificationRecord,
+  DEFAULT_GAMIFICATION_STATE,
 } from '@/types';
 import { getTodayDate } from './utils';
 
@@ -25,10 +28,14 @@ interface SpeakLingoDBSchema extends DBSchema {
     key: string;
     value: ProgressRecord;
   };
+  gamification: {
+    key: 'current';
+    value: GamificationRecord;
+  };
 }
 
 const DB_NAME = 'SpeakLingoDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<SpeakLingoDBSchema>> | null = null;
 
@@ -53,6 +60,11 @@ function getDB(): Promise<IDBPDatabase<SpeakLingoDBSchema>> {
         // Progress store
         if (!db.objectStoreNames.contains('progress')) {
           db.createObjectStore('progress', { keyPath: 'date' });
+        }
+
+        // Gamification store (added in v2)
+        if (!db.objectStoreNames.contains('gamification')) {
+          db.createObjectStore('gamification', { keyPath: 'id' });
         }
       },
     });
@@ -259,11 +271,35 @@ export async function exportAllData(): Promise<{
   return { sessions, settings, progress };
 }
 
+// ============ Gamification ============
+
+export async function getGamificationState(): Promise<GamificationState> {
+  const db = await getDB();
+  const record = await db.get('gamification', 'current');
+  return record?.state ?? DEFAULT_GAMIFICATION_STATE;
+}
+
+export async function saveGamificationState(
+  state: GamificationState
+): Promise<void> {
+  const db = await getDB();
+  await db.put('gamification', {
+    id: 'current',
+    state,
+    lastUpdated: new Date(),
+  });
+}
+
+export async function resetGamification(): Promise<void> {
+  await saveGamificationState(DEFAULT_GAMIFICATION_STATE);
+}
+
 // ============ Clear (for testing) ============
 
 export async function clearAllData(): Promise<void> {
   const db = await getDB();
   await db.clear('sessions');
   await db.clear('progress');
+  await db.clear('gamification');
   await saveSettings(DEFAULT_SETTINGS);
 }
