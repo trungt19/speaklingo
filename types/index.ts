@@ -158,7 +158,7 @@ export interface BadgeDefinition {
   id: string;
   name: string;
   description: string;
-  category: 'streak' | 'clarity' | 'speed' | 'milestone';
+  category: 'streak' | 'clarity' | 'speed' | 'milestone' | 'games';
   icon: string;
   threshold: number;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
@@ -181,6 +181,9 @@ export interface GamificationState {
   totalClearAnswers: number;
   totalFastAnswers: number;
   totalSessions: number;
+  // Game stats
+  totalGamesPlayed: number;
+  totalPerfectGames: number;
 }
 
 // Gamification record for IndexedDB
@@ -222,6 +225,8 @@ export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
   totalClearAnswers: 0,
   totalFastAnswers: 0,
   totalSessions: 0,
+  totalGamesPlayed: 0,
+  totalPerfectGames: 0,
 };
 
 // ============ Game Types ============

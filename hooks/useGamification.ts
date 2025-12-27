@@ -219,6 +219,75 @@ export function useGamification() {
     [state, playSound]
   );
 
+  // Process game completion
+  const processGameComplete = useCallback(
+    async (isPerfect: boolean, pointsEarned: number): Promise<BadgeDefinition[]> => {
+      const newState: GamificationState = { ...state };
+      newState.totalGamesPlayed = (newState.totalGamesPlayed || 0) + 1;
+      if (isPerfect) {
+        newState.totalPerfectGames = (newState.totalPerfectGames || 0) + 1;
+      }
+      newState.totalPoints += pointsEarned;
+
+      // Update level based on new total
+      const previousLevel = state.currentLevel;
+      const newLevel = getLevelForPoints(newState.totalPoints);
+      newState.currentLevel = newLevel.level;
+
+      // Check for game badges
+      const newBadges = checkBadgeUnlocks(state, {
+        newGamesPlayed: 1,
+        newPerfectGames: isPerfect ? 1 : 0,
+      });
+
+      // Add earned badges to state
+      for (const badge of newBadges) {
+        if (!newState.earnedBadges.find((eb) => eb.badgeId === badge.id)) {
+          newState.earnedBadges.push({
+            badgeId: badge.id,
+            earnedAt: new Date(),
+          });
+        }
+      }
+
+      // Queue celebrations
+      const celebrations: CelebrationEvent[] = [];
+
+      // Level up celebration
+      if (newLevel.level > previousLevel) {
+        celebrations.push({
+          type: 'level_up',
+          intensity: 'large',
+          newLevel,
+          message: getRandomMessage('levelUp'),
+        });
+        playSound('level_up');
+      }
+
+      // Badge celebrations
+      for (const badge of newBadges) {
+        celebrations.push({
+          type: 'badge',
+          intensity: badge.rarity === 'legendary' ? 'large' : 'medium',
+          badge,
+          message: getRandomMessage('badge'),
+        });
+        playSound('badge_unlock');
+      }
+
+      if (celebrations.length > 0) {
+        setPendingCelebrations((prev) => [...prev, ...celebrations]);
+      }
+
+      // Save state
+      setState(newState);
+      await saveGamificationState(newState);
+
+      return newBadges;
+    },
+    [state, playSound]
+  );
+
   // Clear a celebration from the queue
   const dismissCelebration = useCallback(() => {
     setPendingCelebrations((prev) => prev.slice(1));
@@ -248,6 +317,7 @@ export function useGamification() {
     currentCelebration: pendingCelebrations[0] || null,
     processAttempt,
     processSessionComplete,
+    processGameComplete,
     dismissCelebration,
     clearCelebrations,
   };

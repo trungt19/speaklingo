@@ -10,6 +10,7 @@ import { GameCompletion } from '@/components/games/GameCompletion';
 import { Mascot } from '@/components/ui/Mascot';
 import { generateMemoryPairs, GAME_INFO, shuffleArray } from '@/lib/gameContent';
 import { useSounds } from '@/hooks/useSounds';
+import { useGamification } from '@/hooks/useGamification';
 
 type GamePhase = 'topic' | 'playing' | 'complete';
 
@@ -26,6 +27,7 @@ const PAIRS_COUNT = 6;
 export default function MemoryGamePage() {
   const router = useRouter();
   const { playSound } = useSounds();
+  const { processGameComplete } = useGamification();
 
   // Game state
   const [phase, setPhase] = useState<GamePhase>('topic');
@@ -110,10 +112,15 @@ export default function MemoryGamePage() {
           // Check for game completion
           if (newMatched.size === PAIRS_COUNT) {
             setTimeout(() => {
-              // Bonus points for fewer moves
-              const moveBonus = Math.max(0, 30 - (moves + 1 - PAIRS_COUNT) * 2);
-              setScore((s) => s + moveBonus);
+              // Bonus points for fewer moves (perfect = PAIRS_COUNT moves)
+              const totalMoves = moves + 1;
+              const isPerfect = totalMoves === PAIRS_COUNT;
+              const moveBonus = Math.max(0, 30 - (totalMoves - PAIRS_COUNT) * 2);
+              const finalScore = score + 15 + moveBonus;
+              setScore(finalScore);
               playSound('confetti');
+              // Record game completion
+              processGameComplete(isPerfect, finalScore);
               setPhase('complete');
             }, 600);
           }

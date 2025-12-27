@@ -138,6 +138,62 @@ export const BADGES: BadgeDefinition[] = [
     threshold: 10,
     rarity: 'legendary',
   },
+
+  // Game badges
+  {
+    id: 'games_1',
+    name: 'Game Explorer',
+    description: 'Play your first game',
+    category: 'games',
+    icon: '🎮',
+    threshold: 1,
+    rarity: 'common',
+  },
+  {
+    id: 'games_10',
+    name: 'Game Fan',
+    description: 'Play 10 games',
+    category: 'games',
+    icon: '🕹️',
+    threshold: 10,
+    rarity: 'rare',
+  },
+  {
+    id: 'games_50',
+    name: 'Game Master',
+    description: 'Play 50 games',
+    category: 'games',
+    icon: '🏆',
+    threshold: 50,
+    rarity: 'legendary',
+  },
+  {
+    id: 'perfect_1',
+    name: 'Perfect Round',
+    description: 'Get a perfect score',
+    category: 'games',
+    icon: '⭐',
+    threshold: 1,
+    rarity: 'common',
+  },
+  {
+    id: 'perfect_5',
+    name: 'Perfectionist',
+    description: 'Get 5 perfect games',
+    category: 'games',
+    icon: '🌟',
+    threshold: 5,
+    rarity: 'rare',
+  },
+  {
+    id: 'perfect_20',
+    name: 'Flawless Champion',
+    description: 'Get 20 perfect games',
+    category: 'games',
+    icon: '💫',
+    threshold: 20,
+    rarity: 'epic',
+  },
 ];
 
 // ============ Points Calculation ============
@@ -222,6 +278,8 @@ export function checkBadgeUnlocks(
     newClearAnswers?: number;
     newFastAnswers?: number;
     newSessions?: number;
+    newGamesPlayed?: number;
+    newPerfectGames?: number;
   }
 ): BadgeDefinition[] {
   const newBadges: BadgeDefinition[] = [];
@@ -233,6 +291,8 @@ export function checkBadgeUnlocks(
     totalFastAnswers: state.totalFastAnswers + (additionalStats?.newFastAnswers || 0),
     totalSessions: state.totalSessions + (additionalStats?.newSessions || 0),
     currentLevel: state.currentLevel,
+    totalGamesPlayed: (state.totalGamesPlayed || 0) + (additionalStats?.newGamesPlayed || 0),
+    totalPerfectGames: (state.totalPerfectGames || 0) + (additionalStats?.newPerfectGames || 0),
   };
 
   for (const badge of BADGES) {
@@ -255,6 +315,13 @@ export function checkBadgeUnlocks(
           unlocked = stats.currentLevel >= badge.threshold;
         } else if (badge.id.startsWith('sessions_') || badge.id === 'first_session') {
           unlocked = stats.totalSessions >= badge.threshold;
+        }
+        break;
+      case 'games':
+        if (badge.id.startsWith('games_')) {
+          unlocked = stats.totalGamesPlayed >= badge.threshold;
+        } else if (badge.id.startsWith('perfect_')) {
+          unlocked = stats.totalPerfectGames >= badge.threshold;
         }
         break;
     }

@@ -11,6 +11,7 @@ import { GameCompletion } from '@/components/games/GameCompletion';
 import { Mascot } from '@/components/ui/Mascot';
 import { generateQuizQuestions, GAME_INFO } from '@/lib/gameContent';
 import { useSounds } from '@/hooks/useSounds';
+import { useGamification } from '@/hooks/useGamification';
 
 type GamePhase = 'topic' | 'playing' | 'feedback' | 'complete';
 
@@ -19,6 +20,7 @@ const ROUNDS = 5;
 export default function QuizGamePage() {
   const router = useRouter();
   const { playSound } = useSounds();
+  const { processGameComplete } = useGamification();
 
   // Game state
   const [phase, setPhase] = useState<GamePhase>('topic');
@@ -73,10 +75,15 @@ export default function QuizGamePage() {
   const nextRound = () => {
     if (currentRound >= ROUNDS - 1) {
       // Add bonus for perfect game
-      if (correctCount === ROUNDS) {
-        setScore((s) => s + 15);
+      const isPerfect = correctCount === ROUNDS;
+      let finalScore = score;
+      if (isPerfect) {
+        finalScore += 15;
+        setScore(finalScore);
         playSound('confetti');
       }
+      // Record game completion for badges
+      processGameComplete(isPerfect, finalScore);
       setPhase('complete');
     } else {
       setCurrentRound((r) => r + 1);

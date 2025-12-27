@@ -10,6 +10,7 @@ import { GameCompletion } from '@/components/games/GameCompletion';
 import { Mascot } from '@/components/ui/Mascot';
 import { generateMatchingItems, GAME_INFO, shuffleArray } from '@/lib/gameContent';
 import { useSounds } from '@/hooks/useSounds';
+import { useGamification } from '@/hooks/useGamification';
 
 type GamePhase = 'topic' | 'playing' | 'complete';
 
@@ -18,6 +19,7 @@ const ITEMS_COUNT = 4;
 export default function MatchingGamePage() {
   const router = useRouter();
   const { playSound } = useSounds();
+  const { processGameComplete } = useGamification();
 
   // Game state
   const [phase, setPhase] = useState<GamePhase>('topic');
@@ -84,8 +86,11 @@ export default function MatchingGamePage() {
             if (topic) loadRound(topic);
           } else {
             // Add bonus for completing all rounds
-            setScore((s) => s + 15);
+            const finalScore = score + 10 + 15; // Current match points + bonus
+            setScore(finalScore);
             playSound('confetti');
+            // Record game completion - matching is always "perfect" if completed
+            processGameComplete(true, finalScore);
             setPhase('complete');
           }
         }, 800);
