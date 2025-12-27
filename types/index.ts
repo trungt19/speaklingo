@@ -223,3 +223,60 @@ export const DEFAULT_GAMIFICATION_STATE: GamificationState = {
   totalFastAnswers: 0,
   totalSessions: 0,
 };
+
+// ============ Game Types ============
+
+export type GameType = 'matching' | 'quiz' | 'memory';
+
+export type GameTopic =
+  | 'emotions'
+  | 'greetings'
+  | 'colors'
+  | 'animals'
+  | 'numbers'
+  | 'objects';
+
+export interface GameImage {
+  id: string;
+  emoji: string; // Using emoji for simplicity
+  label: string;
+}
+
+// Quiz question
+export interface QuizQuestion {
+  id: string;
+  topic: GameTopic;
+  questionText: string;
+  choices: {
+    id: string;
+    emoji: string;
+    label: string;
+    isCorrect: boolean;
+  }[];
+}
+
+// Memory card pair
+export interface MemoryPair {
+  id: string;
+  emoji: string;
+  label: string;
+}
+
+// Game session state
+export interface GameSessionState {
+  gameType: GameType;
+  topic: GameTopic;
+  currentRound: number;
+  totalRounds: number;
+  score: number;
+  correctAnswers: number;
+  startTime: Date;
+}
+
+// Game answer record
+export interface GameAnswer {
+  questionId: string;
+  isCorrect: boolean;
+  responseTimeMs: number;
+  pointsEarned: number;
+}

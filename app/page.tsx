@@ -113,8 +113,9 @@ export default function HomePage() {
         </motion.div>
       )}
 
-      {/* Main Action */}
+      {/* Main Actions */}
       <motion.div
+        className="flex flex-col gap-4"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
@@ -126,6 +127,14 @@ export default function HomePage() {
           className="text-xl px-10 py-5"
         >
           Let&apos;s Talk
+        </Button>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => router.push('/games')}
+          className="text-lg"
+        >
+          Play Games
         </Button>
       </motion.div>
 
